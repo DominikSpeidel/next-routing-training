@@ -1,4 +1,5 @@
 import { DUMMY_NEWS } from "@/dummy-news";
+import { notFound } from "next/navigation";
 
 export default function DetailsPage({ params }) {
   const newsSlug = params.slug;
@@ -8,6 +9,10 @@ export default function DetailsPage({ params }) {
   //die Filtermethode gibt einen neuen Array zurück
   //const newsItem = DUMMY_NEWS.filter((newsItem) => newsItem.slug === newsSlug);
   // die Reaxt-Einbettung wäre dann: <p>News ID: {newsItem[0].title}</p>
+
+  if (!newsItem) {
+    notFound();
+  }
 
   return (
     <article className="news-article">
