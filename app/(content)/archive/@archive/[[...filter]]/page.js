@@ -6,6 +6,23 @@ import {
 } from "@/lib/news";
 import { getAvailableNewsYears } from "@/lib/news";
 import Link from "next/link";
+import { Suspense } from "react";
+
+async function FilteredNews({ year, month }) {
+  let news;
+
+  if (year && !month) {
+    news = await getNewsForYear(year);
+  } else if (year && month) {
+    news = await getNewsForYearAndMonth(year, month);
+  }
+  let newsContent = <p>No news found for the selected period</p>;
+
+  if (news && news.length > 0) {
+    newsContent = <NewsList news={news} />;
+  }
+  return newsContent;
+}
 
 export default async function FilterdNewsPage({ params }) {
   const filter = params.filter;
@@ -14,26 +31,16 @@ export default async function FilterdNewsPage({ params }) {
   // andere Schreibweise wäre filter ? filter[0] : undefined
   const selectedMonth = filter?.[1];
 
-  let news;
-  let links = await getAvailableNewsYears();
+  const availableYears = await getAvailableNewsYears();
+  let links = availableYears;
 
   if (selectedYear && !selectedMonth) {
-    news = await getNewsForYear(selectedYear);
     links = getAvailableNewsMonths(selectedYear);
   }
 
   if (selectedYear && selectedMonth) {
-    news = await getNewsForYearAndMonth(selectedYear, selectedMonth);
     links = [];
   }
-
-  let newsContent = <p>No news found for the selected period</p>;
-
-  if (news && news.length > 0) {
-    newsContent = <NewsList news={news} />;
-  }
-
-  const availableYears = await getAvailableNewsYears();
 
   if (
     (selectedYear && !availableYears.includes(selectedYear)) ||
@@ -62,7 +69,9 @@ export default async function FilterdNewsPage({ params }) {
           </ul>
         </nav>
       </header>
-      {newsContent}
+      <Suspense fallback={<p>Loading news...</p>}>
+        <FilteredNews year={selectedYear} month={selectedMonth} />
+      </Suspense>
     </>
   );
 }
