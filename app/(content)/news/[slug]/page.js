@@ -1,11 +1,11 @@
-import { DUMMY_NEWS } from "@/dummy-news";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { getNewsItem } from "@/lib/news";
 
-export default function DetailsPage({ params }) {
+export default async function NewsDetailPage({ params }) {
   const newsSlug = params.slug;
   //die Findmethode gibt ein neues Objekt zurück
-  const newsItem = DUMMY_NEWS.find((newsItem) => newsItem.slug === newsSlug);
+  const newsItem = await getNewsItem(newsSlug);
 
   //die Filtermethode gibt einen neuen Array zurück
   //const newsItem = DUMMY_NEWS.filter((newsItem) => newsItem.slug === newsSlug);
